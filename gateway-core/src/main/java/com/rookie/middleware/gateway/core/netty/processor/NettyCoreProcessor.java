@@ -7,6 +7,8 @@ import com.rookie.middleware.gateway.common.exception.ResponseException;
 import com.rookie.middleware.gateway.core.config.ConfigLoader;
 import com.rookie.middleware.gateway.core.context.GatewayContext;
 import com.rookie.middleware.gateway.core.context.HttpRequestWrapper;
+import com.rookie.middleware.gateway.core.filter.FilterFactory;
+import com.rookie.middleware.gateway.core.filter.chain.GatewayFilterChainFactory;
 import com.rookie.middleware.gateway.core.helper.AsyncHttpHelper;
 import com.rookie.middleware.gateway.core.helper.RequestHelper;
 import com.rookie.middleware.gateway.core.helper.ResponseHelper;
@@ -31,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 public class NettyCoreProcessor implements NettyProcessor{
+    private FilterFactory filterFactory = GatewayFilterChainFactory.getInstance();
     @Override
     public void process(HttpRequestWrapper wrapper) {
         FullHttpRequest request = wrapper.getRequest();
@@ -38,6 +41,7 @@ public class NettyCoreProcessor implements NettyProcessor{
 
         try {
             GatewayContext gatewayContext = RequestHelper.doContext(request, ctx);
+            filterFactory.buildFilterChain(gatewayContext).doFilter(gatewayContext);
             route(gatewayContext);
         } catch (BaseException e) {
             log.error("process error {} {}", e.getCode().getCode(), e.getCode().getMessage());

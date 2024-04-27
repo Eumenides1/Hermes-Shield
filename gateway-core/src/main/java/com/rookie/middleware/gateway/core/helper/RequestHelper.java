@@ -1,11 +1,14 @@
 package com.rookie.middleware.gateway.core.helper;
 
+import com.rookie.middleware.gateway.common.config.DynamicConfigManager;
 import com.rookie.middleware.gateway.common.config.HttpServiceInvoker;
 import com.rookie.middleware.gateway.common.config.ServiceDefinition;
 import com.rookie.middleware.gateway.common.config.ServiceInvoker;
 import com.rookie.middleware.gateway.common.constants.BasicConst;
 import com.rookie.middleware.gateway.common.constants.GatewayConst;
 import com.rookie.middleware.gateway.common.constants.GatewayProtocol;
+import com.rookie.middleware.gateway.common.enums.ResponseCode;
+import com.rookie.middleware.gateway.common.exception.ResponseException;
 import com.rookie.middleware.gateway.common.rule.Rule;
 import com.rookie.middleware.gateway.core.context.GatewayContext;
 import com.rookie.middleware.gateway.core.request.GatewayRequest;
@@ -33,7 +36,7 @@ public class RequestHelper {
 
         //	根据请求对象里的uniqueId，获取资源服务信息(也就是服务定义信息)
         ServiceDefinition serviceDefinition = ServiceDefinition.builder()
-                .serviceId("demo")
+                .serviceId(gateWayRequest.getUniquedId())
                 .enable(true)
                 .version("v1")
                 .patternPath("**")
@@ -41,6 +44,8 @@ public class RequestHelper {
                 .protocol(GatewayProtocol.HTTP)
                 .build();
 
+        //根据请求对象获取规则
+        Rule rule = getRule(gateWayRequest,serviceDefinition.getServiceId());
 
         //	根据请求对象获取服务定义对应的方法调用，然后获取对应的规则
         ServiceInvoker serviceInvoker = new HttpServiceInvoker();
@@ -110,6 +115,23 @@ public class RequestHelper {
             clientIp = inetSocketAddress.getAddress().getHostAddress();
         }
         return clientIp;
+    }
+
+    /**
+     * 获取Rule对象
+     * @param gateWayRequest
+     * @return
+     */
+    private  static Rule getRule(GatewayRequest gateWayRequest,String serviceId){
+        String key = serviceId + "." + gateWayRequest.getPath();
+        Rule rule = DynamicConfigManager.getInstance().getRuleByPath(key);
+
+        if (rule != null){
+            return rule;
+        }
+        return DynamicConfigManager.getInstance().getRuleByServiceId(serviceId)
+                .stream().filter(r -> gateWayRequest.getPath().startsWith(r.getPrefix()))
+                .findAny().orElseThrow(()-> new ResponseException(ResponseCode.PATH_NO_MATCHED));
     }
 
 

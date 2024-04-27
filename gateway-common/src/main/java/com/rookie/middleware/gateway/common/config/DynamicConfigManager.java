@@ -1,10 +1,8 @@
 package com.rookie.middleware.gateway.common.config;
 
 import com.rookie.middleware.gateway.common.rule.Rule;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -21,6 +19,10 @@ public class DynamicConfigManager {
 
     //	规则集合
     private ConcurrentHashMap<String /* ruleId */ , Rule>  ruleMap = new ConcurrentHashMap<>();
+
+    //路径以及规则集合
+    private ConcurrentHashMap<String /* 路径 */ , Rule>  pathRuleMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String /* 服务名 */ , List<Rule>>  serviceRuleMap = new ConcurrentHashMap<>();
 
     private DynamicConfigManager() {
     }
@@ -106,9 +108,27 @@ public class DynamicConfigManager {
     }
 
     public void putAllRule(List<Rule> ruleList) {
-        Map<String, Rule> map = ruleList.stream()
-                .collect(Collectors.toMap(Rule::getId, r -> r));
-        ruleMap = new ConcurrentHashMap<>(map);
+        ConcurrentHashMap<String,Rule> newRuleMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String,Rule> newPathMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String,List<Rule>> newServiceMap = new ConcurrentHashMap<>();
+        for(Rule rule : ruleList){
+            newRuleMap.put(rule.getId(),rule);
+            List<Rule> rules = newServiceMap.get(rule.getServiceId());
+            if(rules == null){
+                rules = new ArrayList<>();
+            }
+            rules.add(rule);
+            newServiceMap.put(rule.getServiceId(),rules);
+
+            List<String> paths = rule.getPaths();
+            for(String path :paths){
+                String key = rule.getServiceId()+"."+path;
+                newPathMap.put(key,rule);
+            }
+        }
+        ruleMap = newRuleMap;
+        pathRuleMap = newPathMap;
+        serviceRuleMap = newServiceMap;
     }
 
     public Rule getRule(String ruleId) {
@@ -123,6 +143,11 @@ public class DynamicConfigManager {
         return ruleMap;
     }
 
+    public Rule  getRuleByPath(String path){
+        return pathRuleMap.get(path);
+    }
 
+    public List<Rule>  getRuleByServiceId(String serviceId){
+        return serviceRuleMap.get(serviceId);
+    }
 }
-

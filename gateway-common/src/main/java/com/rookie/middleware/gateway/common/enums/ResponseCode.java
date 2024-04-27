@@ -10,6 +10,7 @@ import lombok.Getter;
  */
 @Getter
 public enum ResponseCode {
+
     SUCCESS(HttpResponseStatus.OK, 0, "成功"),
     INTERNAL_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 1000, "网关内部错误"),
     SERVICE_UNAVAILABLE(HttpResponseStatus.SERVICE_UNAVAILABLE, 2000, "服务暂时不可用,请稍后再试"),
@@ -38,6 +39,7 @@ public enum ResponseCode {
     WHITELIST(HttpResponseStatus.FORBIDDEN,10005, "请求IP不在白名单")
 
     ;
+
     private HttpResponseStatus status;
     private int code;
     private String message;
@@ -48,3 +50,4 @@ public enum ResponseCode {
         this.message = msg;
     }
 }
+
