@@ -9,12 +9,14 @@ import com.rookie.middleware.gateway.common.config.ServiceInstance;
 import com.rookie.middleware.gateway.common.constants.BasicConst;
 import com.rookie.middleware.gateway.common.utils.NetUtils;
 import com.rookie.middleware.gateway.common.utils.TimeUtil;
+import com.rookie.middleware.gateway.configcenter.service.ConfigCenter;
 import com.rookie.middleware.gateway.core.config.Config;
 import com.rookie.middleware.gateway.core.config.ConfigLoader;
 import com.rookie.middleware.gateway.core.netty.Container;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
@@ -26,9 +28,22 @@ import java.util.Set;
 public class Bootstrap {
     public static void main(String[] args) {
         // 加载网关核心静态配置
+        //加载网关核心静态配置
         Config config = ConfigLoader.getInstance().load(args);
-        // 插件初始化
-        // 初始化配置中心，链接配置中心，监听配置的增删改查
+        System.out.println(config.getPort());
+
+        System.out.println(config.getRegistryAddress());
+        //插件初始化
+        //配置中心管理器初始化，连接配置中心，监听配置的新增、修改、删除
+        ServiceLoader<ConfigCenter> serviceLoader = ServiceLoader.load(ConfigCenter.class);
+        final ConfigCenter configCenter = serviceLoader.findFirst().orElseThrow(() -> {
+            log.error("not found ConfigCenter impl");
+            return new RuntimeException("not found ConfigCenter impl");
+        });
+        configCenter.init(config.getRegistryAddress(), config.getEnv());
+        configCenter.subscribeRulesChange(rules -> DynamicConfigManager.getInstance()
+                .putAllRule(rules));
+
         // 启动容器
         Container container = new Container(config);
         container.start();
@@ -49,7 +64,12 @@ public class Bootstrap {
     }
 
     private static RegisterCenter registerAndSubscribe(Config config) {
-        final RegisterCenter registerCenter = null;
+        ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
+        final RegisterCenter registerCenter = serviceLoader.findFirst().orElseThrow(() -> {
+            log.error("not found RegisterCenter impl");
+            return new RuntimeException("not found RegisterCenter impl");
+        });
+        registerCenter.init(config.getRegistryAddress(), config.getEnv());
 
         //构造网关服务定义和服务实例
         ServiceDefinition serviceDefinition = buildGatewayServiceDefinition(config);

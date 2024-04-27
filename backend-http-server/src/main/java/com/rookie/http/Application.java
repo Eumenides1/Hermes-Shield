@@ -10,14 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @description
  * @date 2024/4/24
  */
-@SpringBootApplication
-@RestController
+@SpringBootApplication(scanBasePackages = "com.rookie")
 public class Application {
-
-    @GetMapping("/http-demo/ping")
-    public String ping() {
-        return "pong";
-    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

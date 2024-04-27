@@ -21,6 +21,7 @@ import javax.servlet.Servlet;
  * @description
  * @date 2024/4/27
  */
+
 @Configuration
 @EnableConfigurationProperties(ApiProperties.class)
 @ConditionalOnProperty(prefix = "api", name = {"registerAddress"})

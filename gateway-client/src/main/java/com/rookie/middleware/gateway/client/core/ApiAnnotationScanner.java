@@ -22,8 +22,8 @@ import java.util.Map;
  * @description 注解扫描
  * @date 2024/4/27
  */
-
 public class ApiAnnotationScanner {
+
     private ApiAnnotationScanner() {
     }
 
@@ -103,6 +103,7 @@ public class ApiAnnotationScanner {
 
 
 
+
     /**
      * 构建HttpServiceInvoker对象
      */
@@ -153,8 +154,5 @@ public class ApiAnnotationScanner {
 
         return dubboServiceInvoker;
     }
-
-
-
 
 }

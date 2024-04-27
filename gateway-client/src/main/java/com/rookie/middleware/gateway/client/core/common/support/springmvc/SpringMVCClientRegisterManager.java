@@ -35,8 +35,8 @@ import static com.rookie.middleware.gateway.common.constants.GatewayConst.DEFAUL
  */
 @Slf4j
 public class SpringMVCClientRegisterManager extends AbstractClientRegisterManager implements ApplicationListener<ApplicationEvent>, ApplicationContextAware {
-
     private ApplicationContext applicationContext;
+
     @Autowired
     private ServerProperties serverProperties;
 
@@ -64,6 +64,7 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
             log.info("springmvc api started");
         }
     }
+
 
     private void doRegisterSpringMvc() {
         Map<String, RequestMappingHandlerMapping> allRequestMappings = BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext,
@@ -112,7 +113,4 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
 
         }
     }
-
-
-
 }
