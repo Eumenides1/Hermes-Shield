@@ -1,4 +1,4 @@
-package com.rookie.middleware.gateway.client.core.common.support;
+package com.rookie.middleware.gateway.client.core.common.support.dubbo;
 
 /**
  * @author eumenides

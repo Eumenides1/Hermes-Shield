@@ -1,8 +1,8 @@
 package com.rookie.middleware.gateway.core;
 
 import com.alibaba.fastjson.JSON;
-import com.rookie.gateway.register.RegisterCenter;
-import com.rookie.gateway.register.RegisterCenterListener;
+import com.rookie.gateway.register.api.RegisterCenter;
+import com.rookie.gateway.register.api.RegisterCenterListener;
 import com.rookie.middleware.gateway.common.config.DynamicConfigManager;
 import com.rookie.middleware.gateway.common.config.ServiceDefinition;
 import com.rookie.middleware.gateway.common.config.ServiceInstance;

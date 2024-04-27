@@ -1,4 +1,4 @@
-package com.rookie.gateway.register;
+package com.rookie.gateway.register.api;
 
 import com.rookie.middleware.gateway.common.config.ServiceDefinition;
 import com.rookie.middleware.gateway.common.config.ServiceInstance;

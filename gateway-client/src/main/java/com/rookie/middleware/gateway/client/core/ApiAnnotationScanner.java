@@ -3,7 +3,7 @@ package com.rookie.middleware.gateway.client.core;
 import com.rookie.middleware.gateway.client.core.annotation.ApiInvoker;
 import com.rookie.middleware.gateway.client.core.annotation.ApiService;
 import com.rookie.middleware.gateway.client.core.common.enums.ApiProtocol;
-import com.rookie.middleware.gateway.client.core.common.support.DubboConstants;
+import com.rookie.middleware.gateway.client.core.common.support.dubbo.DubboConstants;
 import com.rookie.middleware.gateway.common.config.DubboServiceInvoker;
 import com.rookie.middleware.gateway.common.config.HttpServiceInvoker;
 import com.rookie.middleware.gateway.common.config.ServiceDefinition;
