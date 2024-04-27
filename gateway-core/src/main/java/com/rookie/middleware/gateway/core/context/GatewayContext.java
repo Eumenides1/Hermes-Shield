@@ -8,17 +8,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * @author eumenides
- * @description
- * @date 2024/4/13
+ * @PROJECT_NAME: api-gateway
+ * @DESCRIPTION: 网关核心上下文类
+ * @USER: WuYang
+ * @DATE: 2022/12/29 20:59
  */
-public class GatewayContext extends BaseContext{
+public class GatewayContext extends BasicContext{
 
     private GatewayRequest request;
 
     private GatewayResponse response;
 
     private Rule rule;
+
     /**
      * 构造函数
      *
@@ -26,115 +28,60 @@ public class GatewayContext extends BaseContext{
      * @param nettyCtx
      * @param keepAlive
      */
-    public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive, GatewayRequest request, Rule rule) {
+    public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive,
+                          GatewayRequest request,Rule rule){
         super(protocol, nettyCtx, keepAlive);
         this.request = request;
         this.rule = rule;
     }
 
-    /**
-     * 建造者类
-     */
-    public static class Builder {
 
-        private String protocol;
-
+    public static class Builder{
+        private  String protocol;
         private ChannelHandlerContext nettyCtx;
-
-        private GatewayRequest request;
-
+        private boolean keepAlive;
+        private  GatewayRequest request;
         private Rule rule;
 
-        private boolean keepAlive;
+        private Builder(){
 
-        public Builder() {
         }
 
-        public Builder setProtocol(String protocol) {
+        public Builder setProtocol(String protocol){
             this.protocol = protocol;
             return this;
         }
 
-        public Builder setNettyCtx(ChannelHandlerContext nettyCtx) {
+        public Builder setNettyCtx(ChannelHandlerContext nettyCtx){
             this.nettyCtx = nettyCtx;
             return this;
         }
 
-        public Builder setGatewayRequest(GatewayRequest request) {
-            this.request = request;
-            return this;
-        }
-
-        public Builder setRule(Rule rule) {
-            this.rule = rule;
-            return this;
-        }
-
-        public Builder setKeepAlive(boolean keepAlive) {
+        public Builder setKeepAlive(boolean keepAlive){
             this.keepAlive = keepAlive;
             return this;
         }
 
-        public GatewayContext build() {
-            AssertUtil.notNull(protocol, "protocol不能为空");
-            AssertUtil.notNull(nettyCtx, "nettyCtx不能为空");
-            AssertUtil.notNull(request, "request不能为空");
-            AssertUtil.notNull(rule, "rule不能为空");
-            return new GatewayContext(protocol, nettyCtx, keepAlive, request, rule);
+        public Builder setRequest(GatewayRequest request){
+            this.request = request;
+            return this;
         }
-    }
-    /**
-     * 获取必要的上下文参数，如果没有则抛出IllegalArgumentException
-     * @param key
-     * @return
-     * @param <T>
-     */
-    public <T> T getRequiredAttribute(String key) {
-        T value = getAttribute(key);
-        AssertUtil.notNull(value, "required attribute '" + key + "' is missing !");
-        return value;
-    }
 
-    /**
-     * 获取指定key的上下文参数，如果没有则返回第二个参数的默认值
-     * @param key
-     * @param defaultValue
-     * @return
-     * @param <T>
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T getAttributeOrDefault(String key, T defaultValue) {
-        return (T) attributes.getOrDefault(key, defaultValue);
-    }
-    /**
-     * 根据过滤器id获取对应的过滤器配置信息
-     * @param filterId
-     * @return
-     */
-    public Rule.FilterConfig getFilterConfig(String filterId) {
-        return rule.getFilterConfig(filterId);
-    }
-
-    /**
-     * 获取上下文中唯一的UniqueId
-     * @return
-     */
-    public String getUniqueId() {
-        return request.getUniquedId();
-    }
-
-    /**
-     * 重写覆盖父类：basicContext的该方法，主要用于真正的释放操作
-     */
-    public void releaseRequest() {
-        if(requestReleased.compareAndSet(false, true)) {
-            ReferenceCountUtil.release(request.getFullHttpRequest());
+        public Builder setRule(Rule rule){
+            this.rule = rule;
+            return this;
         }
-    }
 
-    @Override
-    public Rule getRule() {
-        return rule;
+        public GatewayContext build(){
+            AssertUtil.notNull(protocol,"protocol 不能为空");
+
+            AssertUtil.notNull(nettyCtx,"nettyCtx 不能为空");
+
+            AssertUtil.notNull(request,"request 不能为空");
+
+            AssertUtil.notNull(rule,"rule 不能为空");
+            return new GatewayContext(protocol,nettyCtx,keepAlive,request,rule);
+        }
     }
 
     @Override
@@ -142,20 +89,8 @@ public class GatewayContext extends BaseContext{
         return request;
     }
 
-    /**
-     * 调用该方法就是获取原始请求内容，不去做任何修改动作
-     * @return
-     */
-    public GatewayRequest getOriginRequest() {
-        return request;
-    }
-
-    /**
-     * 调用该方法区分于原始的请求对象操作，主要就是做属性修改的
-     * @return
-     */
-    public GatewayRequest getIGatewayRequest() {
-        return request;
+    public void setRequest(GatewayRequest request) {
+        this.request = request;
     }
 
     @Override
@@ -163,8 +98,49 @@ public class GatewayContext extends BaseContext{
         return response;
     }
 
-    @Override
     public void setResponse(Object response) {
-        this.response = (GatewayResponse)response;
+        this.response = (GatewayResponse) response;
     }
+
+    @Override
+    public Rule getRule() {
+        return rule;
+    }
+
+    public void setRule(Rule rule) {
+        this.rule = rule;
+    }
+
+    /**
+     * 根据过滤器ID获取对应的过滤器配置信息
+     * @param filterId
+     * @return
+     */
+    public Rule.FilterConfig getFilterConfig(String filterId){
+        return  rule.getFilterConfig(filterId);
+    }
+
+    public String getUniqueId(){
+        return request.getUniquedId();
+    }
+
+    /**
+     * 重写父类释放资源方法，用于正在释放资源
+     */
+    public void releaseRequest(){
+        if(requestReleased.compareAndSet(false,true)){
+            ReferenceCountUtil.release(request.getFullHttpRequest());
+        }
+    }
+
+    /**
+     * 获取原始的请求对象
+     * @return
+     */
+    public GatewayRequest getOriginRequest(){
+        return  request;
+    }
+
+
+
 }

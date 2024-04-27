@@ -18,6 +18,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -32,6 +33,7 @@ public class NettyHttpServer implements LifeCycle {
     private final Config config;
     private ServerBootstrap serverBootstrap;
     private EventLoopGroup eventLoopGroupBoss;
+    @Getter
     private EventLoopGroup eventLoopGroupWorker;
 
     private final NettyProcessor nettyProcessor;
@@ -49,12 +51,12 @@ public class NettyHttpServer implements LifeCycle {
             this.eventLoopGroupBoss = new EpollEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWorker = new EpollEventLoopGroup(config.getEventLoopGroupWorkerNum(),
-                    new DefaultThreadFactory("netty-woker-nio"));
+                    new DefaultThreadFactory("netty-worker-nio"));
         } else {
             this.eventLoopGroupBoss = new NioEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWorker = new NioEventLoopGroup(config.getEventLoopGroupWorkerNum(),
-                    new DefaultThreadFactory("netty-woker-nio"));
+                    new DefaultThreadFactory("netty-worker-nio"));
         }
     }
 

@@ -51,8 +51,9 @@ public class NettyCoreProcessor implements NettyProcessor{
     }
 
     private void doWriteAndRelease(ChannelHandlerContext ctx, FullHttpRequest request, FullHttpResponse httpResponse) {
+        //释放资源后关闭channel
         ctx.writeAndFlush(httpResponse)
-                .addListener(ChannelFutureListener.CLOSE); //释放资源后关闭channel
+                .addListener(ChannelFutureListener.CLOSE);
         ReferenceCountUtil.release(request);
     }
 

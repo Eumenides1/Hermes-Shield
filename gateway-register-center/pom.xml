@@ -10,6 +10,10 @@
     </parent>
 
     <artifactId>gateway-register-center</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>register-center-api</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
